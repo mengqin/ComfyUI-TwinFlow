@@ -29,18 +29,24 @@ Github: https://github.com/inclusionAI/TwinFlow
 ## Usage
 
 ### 1. Model Patching
-Place your TwinFlow patch files (e.g., `twinflow_qwen.safetensors` or `twinflow_sana.gguf`) in your `ComfyUI/models/diffusion_models/` directory.
+Place your TwinFlow patch files (e.g., `TwinFlow_Z_Image_Turbo_bf16.safetensors`) in your `ComfyUI/models/unet/` directory (gguf files can be this same directory).
 
 Use the **TwinFlow Model Patcher** node:
-- **model**: Connect your base DiT model (e.g., Qwen, SD3.5).
+- **model**: Connect your base DiT model (e.g., Qwen, Z-image).
 - **patch_file**: Select the corresponding TwinFlow patch file.
 
 ### 2. Sampling
 You can use the **TwinFlow KSampler** for a simplified workflow, or use the individual **TwinFlow Sampler** and **TwinFlow Scheduler** nodes with the standard `SamplerCustom` node.
 
+![](https://github.com/mengqin/ComfyUI-TwinFlow/blob/main/assets/Twinflow-Basic.png?raw=true)
+
+Alternatively, you can use Twinflow's Sampler and Scheduler to customize your own sampling process.
+
+![](https://github.com/mengqin/ComfyUI-TwinFlow/blob/main/assets/Twinflow-Advance.png?raw=true)
+
 **Key Parameters:**
 - `sampling_style`: 
-  - `few`: For extremely low steps (e.g., 1-2 steps).
+  - `few`: For extremely low steps (e.g., 2-4 steps).
   - `any`: For flexible step counts.
   - `mul`: For multi-step generation.
 - `sampling_method`: `euler` (1st order) or `heun` (2nd order).
