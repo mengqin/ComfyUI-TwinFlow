@@ -32,8 +32,8 @@ Github: https://github.com/inclusionAI/TwinFlow
 Place your TwinFlow patch files (e.g., `TwinFlow_Z_Image_Turbo_bf16.safetensors`) in your `ComfyUI/models/unet/` directory (gguf files can be this same directory).
 
 Use the **TwinFlow Model Patcher** node:
-- **model**: Connect your base DiT model (e.g., Qwen, Z-image).
-- **patch_file**: Select the corresponding TwinFlow patch file.
+- **model**: Connect your TwinFlow tunned DiT model (e.g., Qwen, Z-image).
+- **patch_file**: Select the same model TwinFlow modle file (**This is a necessary step. Twinflow uses an additional time embedder tensor for inference, which is removed by the standard ComfyUI UNet load node.  Our patcher node must be used to restore it.**).
 
 ### 2. Sampling
 You can use the **TwinFlow KSampler** for a simplified workflow, or use the individual **TwinFlow Sampler** and **TwinFlow Scheduler** nodes with the standard `SamplerCustom` node.
