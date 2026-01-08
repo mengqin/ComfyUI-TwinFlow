@@ -19,7 +19,7 @@ Github: https://github.com/inclusionAI/TwinFlow
 1. Clone this repository into your ComfyUI `custom_nodes` directory:
    ```bash
    cd ComfyUI/custom_nodes
-   git clone https://github.com/your-username/ComfyUI-TwinFlow.git
+   git clone https://github.com/mengqin/ComfyUI-TwinFlow.git
    ```
 2. Install dependencies:
    ```bash
@@ -101,4 +101,5 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
 ```
