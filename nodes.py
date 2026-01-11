@@ -136,28 +136,77 @@ def _load_twinflow_keys_safetensors(path: str, prefixes):
             weights[k] = f.get_tensor(k)
     return weights
 
+_QK8_0 = 32
+_BLOCK_Q8_0_SIZE = 2 + _QK8_0  # fp16(2 bytes) + 32*int8
+
+_DT_Q8_0 = np.dtype([
+    ("d",  "<f2"),          # little-endian float16
+    ("qs", "i1", (_QK8_0,)), # int8[32]
+], align=False)
+
+def _dequant_q8_0_bytes_to_np(qbytes_u8: np.ndarray, n_elem: int, out_dtype=np.float16) -> np.ndarray:
+    if n_elem % _QK8_0 != 0:
+        raise ValueError(f"Q8_0 n_elem must be multiple of {_QK8_0}, got {n_elem}")
+    nb = n_elem // _QK8_0
+    expected = nb * _BLOCK_Q8_0_SIZE
+    if int(qbytes_u8.nbytes) != expected:
+        raise ValueError(f"Q8_0 bytes mismatch: expect {expected}, got {qbytes_u8.nbytes}")
+
+    blocks = np.frombuffer(qbytes_u8, dtype=_DT_Q8_0, count=nb)
+    d  = blocks["d"].astype(np.float32)          # (nb,)
+    qs = blocks["qs"].astype(np.float32)         # (nb,32)
+    out = (qs * d[:, None]).reshape(n_elem)      # float32
+
+    return out.astype(out_dtype, copy=False)
 
 def _load_twinflow_keys_gguf(path: str, prefixes):
     if gguf is None:
         raise ImportError("Loading GGUF models requires the 'gguf' package.")
     weights = {}
     reader = gguf.GGUFReader(path)
+
+    F32 = getattr(gguf.GGMLQuantizationType, "F32", None)
+    F16 = getattr(gguf.GGMLQuantizationType, "F16", None)
+    BF16 = getattr(gguf.GGMLQuantizationType, "BF16", None)
+    Q8_0 = getattr(gguf.GGMLQuantizationType, "Q8_0", None)
+
     for t in reader.tensors:
         name = t.name
         if not any(name.startswith(p) for p in prefixes):
             continue
-        # GGUF tensors are numpy views; copy to own buffer.
-        # Accept F16/F32 only; ignore quantized for patch weights.
+
         qtype = getattr(t, "tensor_type", None)
         if qtype is None:
             qtype = getattr(t, "type", None)
-        if qtype == getattr(gguf.GGMLQuantizationType, "F32", None):
-            dtype = torch.float32
-        elif qtype == getattr(gguf.GGMLQuantizationType, "F16", None):
-            dtype = torch.float16
-        else:
+        
+        shape = tuple(getattr(t, "shape", ()))
+        if not shape:            
+            shape = tuple(getattr(t, "dims", ()))
+
+        raw = np.array(t.data, copy=True).view(np.uint8).reshape(-1)
+
+        if qtype == F32:
+            arr = np.array(t.data, copy=True)
+            weights[name] = torch.from_numpy(arr).to(torch.float32)
+        elif qtype == F16:
+            arr = np.array(t.data, copy=True)
+            weights[name] = torch.from_numpy(arr).to(torch.float16)
+        elif qtype == BF16:
+            u16 = np.array(t.data, copy=True).view(np.uint16)
+            weights[name] = torch.from_numpy(u16).view(torch.bfloat16)
+        elif qtype == Q8_0:
+            qbytes = np.array(t.data, copy=True).view(np.uint8).reshape(-1)
+            
+            dims = np.array(t.shape, dtype=np.int64).tolist()
+            np_shape = tuple(reversed(dims))
+
+            fp = _dequant_q8_0_bytes_to_np(qbytes, n_elem=int(t.n_elements), out_dtype=np.float16)
+            fp = fp.reshape(np_shape)
+            
+            weights[name] = torch.from_numpy(fp).to(torch.float16)
+        else:            
             continue
-        weights[name] = torch.from_numpy(np.array(t.data, copy=True)).to(dtype)
+
     return weights
 
 
