@@ -53,6 +53,19 @@ Alternatively, you can use Twinflow's Sampler and Scheduler to customize your ow
 - `dist_ctrl_a/b/c`: Controls the Kumaraswamy time distribution (default 1.0 is usually linear).
 - `gap_start/gap_end`: Defines the time boundaries for the flow.
 
+**GGUF model supports:**
+
+Simply switch the unet loader node to the Comfyui-GGUF unet loader. However, please note that because Comfyui GGUF currently does not support the z-image architecture, none of the z-image GGUF models on Hugging Face can be loaded. This requires waiting for an update to the GGUF node.
+Additionally, some models on Hugging Face, such as:
+
+https://huggingface.co/smthem/TwinFlow-Qwen-Image-v1.0-diffusers-gguf/tree/main
+
+have an incorrect architecture field; it uses "qwen" instead of the standard "qwen_image". This can be easily corrected by writing a script.
+
+Alternatively, you can directly download the correct GGUF model:
+
+https://huggingface.co/Arunk25/TwinFlow-Qwen-Image-v1.0-GGUF
+
 ## Notice
 
 ComfyUI has another Twinflow implementation as follows:
@@ -103,3 +116,4 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ```
+
