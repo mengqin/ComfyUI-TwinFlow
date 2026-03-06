@@ -55,7 +55,18 @@ Alternatively, you can use Twinflow's Sampler and Scheduler to customize your ow
 
 **GGUF model supports:**
 
-Simply switch the unet loader node to the Comfyui-GGUF unet loader. However, please note that because Comfyui GGUF currently does not support the z-image architecture, none of the z-image GGUF models on Hugging Face can be loaded. This requires waiting for an update to the GGUF node.
+Simply switch the unet loader node to the Comfyui-GGUF unet loader. 
+
+The Twinflow z-image-turbo gguf model has finally been released:
+
+https://huggingface.co/wbruna/TwinFlow-Z-Image-Turbo-sdcpp-GGUF
+
+However, this model has issues and cannot be loaded using Comfyui-GGUF. The following fix is ​​required:
+
+https://github.com/mengqin/ComfyUI-TwinFlow/issues/9#issuecomment-4011393121
+
+After the fix, these models can be easily integrated into our workflow.
+
 Additionally, some models on Hugging Face, such as:
 
 https://huggingface.co/smthem/TwinFlow-Qwen-Image-v1.0-diffusers-gguf/tree/main
@@ -116,4 +127,5 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 ```
+
 
